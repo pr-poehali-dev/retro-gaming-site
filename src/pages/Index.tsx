@@ -7,12 +7,24 @@ import TicTacToe from '../components/games/TicTacToe';
 import Snake from '../components/games/Snake';
 import Blackjack from '../components/games/Blackjack';
 import Durak from '../components/games/Durak';
+import Tetris from '../components/games/Tetris';
+import Minesweeper from '../components/games/Minesweeper';
+import Arkanoid from '../components/games/Arkanoid';
+import Pacman from '../components/games/Pacman';
+import SpaceInvaders from '../components/games/SpaceInvaders';
+import Pong from '../components/games/Pong';
+import FlappyBird from '../components/games/FlappyBird';
+import Solitaire from '../components/games/Solitaire';
+import Sudoku from '../components/games/Sudoku';
+import Memory from '../components/games/Memory';
+import Connect4 from '../components/games/Connect4';
+import Reversi from '../components/games/Reversi';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import Icon from '../components/ui/icon';
 
 type Page = 'home' | 'games' | 'profile';
-type GameType = 'tictactoe' | 'snake' | 'chess' | 'blackjack' | 'durak' | 'poker' | null;
+type GameType = 'tictactoe' | 'snake' | 'chess' | 'blackjack' | 'durak' | 'poker' | 'tetris' | 'minesweeper' | 'arkanoid' | 'pacman' | 'spaceinvaders' | 'pong' | 'flappybird' | 'solitaire' | 'sudoku' | 'memory' | 'connect4' | 'reversi' | null;
 
 interface GameData {
   id: GameType;
@@ -41,12 +53,20 @@ export default function Index() {
 
   const allGames: GameData[] = [
     {
-      id: 'tictactoe',
-      title: 'КРЕСТИКИ НОЛИКИ',
-      icon: '❌',
+      id: 'tetris',
+      title: 'ТЕТРИС',
+      icon: '🟦',
       mode: 'offline',
       category: 'arcade',
-      keywords: ['крестики', 'нолики', 'логика', 'простая']
+      keywords: ['тетрис', 'блоки', 'классика', 'пазл']
+    },
+    {
+      id: 'pacman',
+      title: 'ПАКМАН',
+      icon: '👾',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['пакман', 'аркада', 'призраки', 'лабиринт']
     },
     {
       id: 'snake',
@@ -55,6 +75,54 @@ export default function Index() {
       mode: 'offline',
       category: 'arcade',
       keywords: ['змейка', 'аркада', 'классика', 'ретро']
+    },
+    {
+      id: 'arkanoid',
+      title: 'АРКАНОИД',
+      icon: '🏓',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['арканоид', 'мячик', 'блоки', 'классика']
+    },
+    {
+      id: 'minesweeper',
+      title: 'САПЁР',
+      icon: '💣',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['сапёр', 'мины', 'логика', 'windows']
+    },
+    {
+      id: 'spaceinvaders',
+      title: 'КОСМИЧЕСКИЕ ЗАХВАТЧИКИ',
+      icon: '🛸',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['космос', 'инопланетяне', 'шутер', 'ретро']
+    },
+    {
+      id: 'pong',
+      title: 'ПОНГ',
+      icon: '🏓',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['понг', 'теннис', 'первая', 'классика']
+    },
+    {
+      id: 'flappybird',
+      title: 'FLAPPY BIRD',
+      icon: '🐦',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['птица', 'прыжки', 'трубы', 'хардкор']
+    },
+    {
+      id: 'tictactoe',
+      title: 'КРЕСТИКИ-НОЛИКИ',
+      icon: '❌',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['крестики', 'нолики', 'логика', 'простая']
     },
     {
       id: 'blackjack',
@@ -71,6 +139,46 @@ export default function Index() {
       mode: 'offline',
       category: 'cards',
       keywords: ['дурак', 'карты', 'подкидной', 'русская']
+    },
+    {
+      id: 'solitaire',
+      title: 'ПАСЬЯНС',
+      icon: '🃴',
+      mode: 'offline',
+      category: 'cards',
+      keywords: ['пасьянс', 'клондайк', 'одиночная', 'windows']
+    },
+    {
+      id: 'sudoku',
+      title: 'СУДОКУ',
+      icon: '🔢',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['судоку', 'цифры', 'логика', 'японская']
+    },
+    {
+      id: 'memory',
+      title: 'ПАМЯТЬ',
+      icon: '🧠',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['память', 'карточки', 'пары', 'внимание']
+    },
+    {
+      id: 'connect4',
+      title: '4 В РЯД',
+      icon: '🔴',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['четыре', 'ряд', 'логика', 'стратегия']
+    },
+    {
+      id: 'reversi',
+      title: 'РЕВЕРСИ',
+      icon: '⚫',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['реверси', 'отелло', 'стратегия', 'доска']
     },
     {
       id: 'poker',
@@ -220,6 +328,30 @@ export default function Index() {
           return <Blackjack />;
         case 'durak':
           return <Durak />;
+        case 'tetris':
+          return <Tetris />;
+        case 'minesweeper':
+          return <Minesweeper />;
+        case 'arkanoid':
+          return <Arkanoid />;
+        case 'pacman':
+          return <Pacman />;
+        case 'spaceinvaders':
+          return <SpaceInvaders />;
+        case 'pong':
+          return <Pong />;
+        case 'flappybird':
+          return <FlappyBird />;
+        case 'solitaire':
+          return <Solitaire />;
+        case 'sudoku':
+          return <Sudoku />;
+        case 'memory':
+          return <Memory />;
+        case 'connect4':
+          return <Connect4 />;
+        case 'reversi':
+          return <Reversi />;
         case 'poker':
         case 'chess':
           const gameData = allGames.find(g => g.id === currentGame);
