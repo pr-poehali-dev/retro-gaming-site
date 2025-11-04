@@ -1,15 +1,28 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Navbar from '../components/Navbar';
 import GameCard from '../components/GameCard';
 import AuthModal from '../components/AuthModal';
+import SearchBar from '../components/SearchBar';
 import TicTacToe from '../components/games/TicTacToe';
 import Snake from '../components/games/Snake';
+import Blackjack from '../components/games/Blackjack';
+import Durak from '../components/games/Durak';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import Icon from '../components/ui/icon';
 
 type Page = 'home' | 'games' | 'profile';
-type GameType = 'tictactoe' | 'snake' | 'chess' | null;
+type GameType = 'tictactoe' | 'snake' | 'chess' | 'blackjack' | 'durak' | 'poker' | null;
+
+interface GameData {
+  id: GameType;
+  title: string;
+  icon: string;
+  mode: 'offline' | 'online';
+  category: 'arcade' | 'cards';
+  players?: string;
+  keywords: string[];
+}
 
 interface User {
   email: string;
@@ -23,6 +36,94 @@ export default function Index() {
   const [currentGame, setCurrentGame] = useState<GameType>(null);
   const [user, setUser] = useState<User | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+  const allGames: GameData[] = [
+    {
+      id: 'tictactoe',
+      title: 'КРЕСТИКИ НОЛИКИ',
+      icon: '❌',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['крестики', 'нолики', 'логика', 'простая']
+    },
+    {
+      id: 'snake',
+      title: 'ЗМЕЙКА',
+      icon: '🐍',
+      mode: 'offline',
+      category: 'arcade',
+      keywords: ['змейка', 'аркада', 'классика', 'ретро']
+    },
+    {
+      id: 'blackjack',
+      title: 'БЛЭКДЖЕК',
+      icon: '🃏',
+      mode: 'offline',
+      category: 'cards',
+      keywords: ['блэкджек', 'карты', '21', 'казино']
+    },
+    {
+      id: 'durak',
+      title: 'ДУРАК',
+      icon: '🂡',
+      mode: 'offline',
+      category: 'cards',
+      keywords: ['дурак', 'карты', 'подкидной', 'русская']
+    },
+    {
+      id: 'poker',
+      title: 'ПОКЕР',
+      icon: '♠️',
+      mode: 'online',
+      category: 'cards',
+      players: '2-6 игроков',
+      keywords: ['покер', 'карты', 'онлайн', 'техасский']
+    },
+    {
+      id: 'chess',
+      title: 'ШАХМАТЫ',
+      icon: '♟️',
+      mode: 'online',
+      category: 'arcade',
+      players: '2 игрока',
+      keywords: ['шахматы', 'логика', 'онлайн', 'стратегия']
+    }
+  ];
+
+  const filteredGames = useMemo(() => {
+    return allGames.filter(game => {
+      const matchesSearch = !searchQuery || 
+        game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        game.keywords.some(keyword => keyword.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      if (!matchesSearch) return false;
+      
+      if (selectedFilters.length === 0) return true;
+      
+      return selectedFilters.every(filter => {
+        if (filter === 'offline') return game.mode === 'offline';
+        if (filter === 'online') return game.mode === 'online';
+        if (filter === 'arcade') return game.category === 'arcade';
+        if (filter === 'cards') return game.category === 'cards';
+        return true;
+      });
+    });
+  }, [searchQuery, selectedFilters]);
+
+  const handleFilterToggle = (filter: string) => {
+    setSelectedFilters(prev => 
+      prev.includes(filter) 
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter]
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSelectedFilters([]);
+    setSearchQuery('');
+  };
 
   const handleAuth = async (email: string, password: string, isLogin: boolean) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -61,29 +162,35 @@ export default function Index() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <GameCard
-          title="КРЕСТИКИ НОЛИКИ"
-          icon="❌"
-          mode="offline"
-          onClick={() => handleGameClick('tictactoe')}
-        />
-        
-        <GameCard
-          title="ЗМЕЙКА"
-          icon="🐍"
-          mode="offline"
-          onClick={() => handleGameClick('snake')}
-        />
-        
-        <GameCard
-          title="ШАХМАТЫ"
-          icon="♟️"
-          mode="online"
-          players="2 игрока"
-          onClick={() => handleGameClick('chess')}
-        />
-      </div>
+      <SearchBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedFilters={selectedFilters}
+        onFilterToggle={handleFilterToggle}
+        onClearFilters={handleClearFilters}
+      />
+
+      {filteredGames.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {filteredGames.map(game => (
+            <GameCard
+              key={game.id}
+              title={game.title}
+              icon={game.icon}
+              mode={game.mode}
+              players={game.players}
+              onClick={() => handleGameClick(game.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <Card className="p-12 text-center neon-border">
+          <Icon name="Search" size={48} className="mx-auto mb-4 text-muted-foreground" />
+          <p className="font-orbitron text-sm text-muted-foreground">
+            Игры не найдены. Попробуй изменить поиск или фильтры.
+          </p>
+        </Card>
+      )}
 
       {!user && (
         <Card className="p-6 text-center bg-primary/10 neon-border animate-pulse-glow">
@@ -103,7 +210,41 @@ export default function Index() {
   );
 
   const renderGames = () => {
-    if (currentGame === 'tictactoe') {
+    const renderGameComponent = () => {
+      switch (currentGame) {
+        case 'tictactoe':
+          return <TicTacToe />;
+        case 'snake':
+          return <Snake />;
+        case 'blackjack':
+          return <Blackjack />;
+        case 'durak':
+          return <Durak />;
+        case 'poker':
+        case 'chess':
+          const gameData = allGames.find(g => g.id === currentGame);
+          return (
+            <div className="text-center space-y-6">
+              <Card className="p-12 neon-border">
+                <div className="text-6xl mb-4">{gameData?.icon}</div>
+                <h2 className="font-arcade text-lg text-primary mb-4">
+                  {gameData?.title}
+                </h2>
+                <p className="font-orbitron text-sm text-muted-foreground mb-6">
+                  Функционал онлайн-игры будет добавлен в следующей версии!
+                </p>
+                <p className="font-orbitron text-xs text-muted-foreground">
+                  Здесь будет поиск соперника и игра в реальном времени
+                </p>
+              </Card>
+            </div>
+          );
+        default:
+          return null;
+      }
+    };
+
+    if (currentGame) {
       return (
         <div className="animate-slide-in">
           <Button 
@@ -114,53 +255,13 @@ export default function Index() {
             <Icon name="ArrowLeft" size={16} className="mr-2" />
             Назад к играм
           </Button>
-          <TicTacToe />
+          {renderGameComponent()}
         </div>
       );
     }
 
-    if (currentGame === 'snake') {
-      return (
-        <div className="animate-slide-in">
-          <Button 
-            variant="outline" 
-            onClick={() => setCurrentGame(null)}
-            className="mb-6 font-orbitron"
-          >
-            <Icon name="ArrowLeft" size={16} className="mr-2" />
-            Назад к играм
-          </Button>
-          <Snake />
-        </div>
-      );
-    }
-
-    if (currentGame === 'chess') {
-      return (
-        <div className="animate-slide-in text-center space-y-6">
-          <Button 
-            variant="outline" 
-            onClick={() => setCurrentGame(null)}
-            className="font-orbitron"
-          >
-            <Icon name="ArrowLeft" size={16} className="mr-2" />
-            Назад к играм
-          </Button>
-          
-          <Card className="p-12 neon-border">
-            <div className="text-6xl mb-4">♟️</div>
-            <h2 className="font-arcade text-lg text-primary mb-4">
-              ОНЛАЙН ШАХМАТЫ
-            </h2>
-            <p className="font-orbitron text-sm text-muted-foreground mb-6">
-              Функционал онлайн-игры будет добавлен в следующей версии!
-            </p>
-            <p className="font-orbitron text-xs text-muted-foreground">
-              Здесь будет поиск соперника и игра в реальном времени
-            </p>
-          </Card>
-        </div>
-      );
+    if (false) {
+      return null;
     }
 
     return (
@@ -169,29 +270,35 @@ export default function Index() {
           ВЫБЕРИ ИГРУ
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GameCard
-            title="КРЕСТИКИ НОЛИКИ"
-            icon="❌"
-            mode="offline"
-            onClick={() => setCurrentGame('tictactoe')}
-          />
-          
-          <GameCard
-            title="ЗМЕЙКА"
-            icon="🐍"
-            mode="offline"
-            onClick={() => setCurrentGame('snake')}
-          />
-          
-          <GameCard
-            title="ШАХМАТЫ"
-            icon="♟️"
-            mode="online"
-            players="2 игрока"
-            onClick={() => setCurrentGame('chess')}
-          />
-        </div>
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedFilters={selectedFilters}
+          onFilterToggle={handleFilterToggle}
+          onClearFilters={handleClearFilters}
+        />
+        
+        {filteredGames.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {filteredGames.map(game => (
+              <GameCard
+                key={game.id}
+                title={game.title}
+                icon={game.icon}
+                mode={game.mode}
+                players={game.players}
+                onClick={() => setCurrentGame(game.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card className="p-12 text-center neon-border">
+            <Icon name="Search" size={48} className="mx-auto mb-4 text-muted-foreground" />
+            <p className="font-orbitron text-sm text-muted-foreground">
+              Игры не найдены. Попробуй изменить поиск или фильтры.
+            </p>
+          </Card>
+        )}
       </div>
     );
   };
